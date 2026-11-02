@@ -5,7 +5,7 @@ import 'dotenv/config'
 
 const PORT = process.env.PORT || 5000
 const app = express()
-// app.use(cors());
+app.use(cors())
 app.use(express.json())
 
 const client = new MongoClient(process.env.MONGO_URI)
@@ -22,6 +22,12 @@ export async function connectToMongoDB () {
 const connectClient = await connectToMongoDB()
 const db = connectClient.db('Book-nook-server')
 const allBooksCollection = db.collection('allBooks')
+
+app.post('/books', async (req, res) => {
+  const books = req.body
+  const result = await allBooksCollection.insertOne(books)
+  res.send(result)
+})
 
 app.get('/allBooks', async (req, res) => {
   const result = await allBooksCollection.find({}).toArray()
