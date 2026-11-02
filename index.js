@@ -34,6 +34,15 @@ app.get('/allBooks', async (req, res) => {
   res.send(result)
 })
 
+app.get('/latest-books', async (req, res) => {
+  const result = await allBooksCollection
+    .find({})
+    .sort({ addedDate: -1 })
+    .limit(6)
+    .toArray()
+  res.send(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
