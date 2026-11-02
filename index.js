@@ -19,7 +19,14 @@ export async function connectToMongoDB () {
   }
 }
 
-connectToMongoDB()
+const connectClient = await connectToMongoDB()
+const db = connectClient.db('Book-nook-server')
+const allBooksCollection = db.collection('allBooks')
+
+app.get('/allBooks', async (req, res) => {
+  const result = await allBooksCollection.find({}).toArray()
+  res.send(result)
+})
 
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
