@@ -57,6 +57,31 @@ app.get('/books/category/:categoryName', async (req, res) => {
   res.send(result)
 })
 
+app.get('/my-books', async (req, res) => {
+  const email = req.query.email
+  const query = { userEmail: email }
+  const result = await allBooksCollection.find(query).toArray()
+  res.send(result)
+})
+
+app.put('/books/:id', async (req, res) => {
+  const id = req.params.id
+  const updatedBook = req.body
+  const filter = { _id: new ObjectId(id) }
+  const updateDoc = {
+    $set: {
+      title: updatedBook.title,
+      author: updatedBook.author,
+      category: updatedBook.category,
+      copies: updatedBook.copies,
+      image: updatedBook.image,
+      description: updatedBook.description
+    }
+  }
+  const result = await allBooksCollection.updateOne(filter, updateDoc)
+  res.send(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
