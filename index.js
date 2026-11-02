@@ -82,6 +82,13 @@ app.put('/books/:id', async (req, res) => {
   res.send(result)
 })
 
+app.delete('/books/:id', async (req, res) => {
+  const id = req.params.id
+  const query = { _id: new ObjectId(id) }
+  const result = await allBooksCollection.deleteOne(query)
+  res.send(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
