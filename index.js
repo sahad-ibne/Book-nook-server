@@ -50,6 +50,13 @@ app.get('/books/:id', async (req, res) => {
   res.send(result)
 })
 
+app.get('/books/category/:categoryName', async (req, res) => {
+  const categoryName = req.params.categoryName
+  const query = { category: categoryName }
+  const result = await allBooksCollection.find(query).toArray()
+  res.send(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
