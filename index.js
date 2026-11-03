@@ -103,6 +103,13 @@ app.get('/borrows', async (req, res) => {
   res.send(result)
 })
 
+app.delete('/borrows/:id', async (req, res) => {
+  const id = req.params.id
+  const query = { _id: new ObjectId(id) }
+  const result = await borrowsCollection.deleteOne(query)
+  res.send(result)
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
