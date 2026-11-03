@@ -107,7 +107,9 @@ app.post('/borrows', async (req, res) => {
     userEmail: borrowData.userEmail
   })
   if (existingBorrow) {
-    return res.status(409).send({ message: 'You have already borrowed this book' })
+    return res
+      .status(409)
+      .send({ message: 'You have already borrowed this book' })
   }
 
   let bookObjectId
@@ -158,6 +160,53 @@ app.delete('/borrows/:id', async (req, res) => {
     }
   }
   res.send(result)
+})
+
+app.patch('/books/:id', async (req, res) => {
+  const id = req.params.id
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).send({ message: 'Invalid Book ID' })
+  }
+
+  const { type, rating, comment, quoteText, userName, userEmail } = req.body
+  const filter = { _id: new ObjectId(id) }
+
+  if (type === 'review') {
+    const newReview = {
+      rating: Number(rating) || 5,
+      comment: String(comment || '').trim(),
+      userName,
+      userEmail,
+      createdAt: new Date().toISOString()
+    }
+    const result = await allBooksCollection.updateOne(filter, {
+      $push: { reviews: newReview }
+    })
+    return res.send({
+      success: true,
+      message: 'Review added successfully',
+      result
+    })
+  }
+
+  if (type === 'quote') {
+    const newQuote = {
+      quoteText: String(quoteText || '').trim(),
+      userName,
+      userEmail,
+      createdAt: new Date().toISOString()
+    }
+    const result = await allBooksCollection.updateOne(filter, {
+      $push: { quotes: newQuote }
+    })
+    return res.send({
+      success: true,
+      message: 'Quote added successfully',
+      result
+    })
+  }
+
+  res.status(400).send({ message: 'Invalid update type' })
 })
 
 app.listen(PORT, () => {
