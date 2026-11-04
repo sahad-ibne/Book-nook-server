@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { MongoClient, ObjectId } from 'mongodb'
 import 'dotenv/config'
+import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 const PORT = process.env.PORT || 5000
 
@@ -10,6 +11,25 @@ app.use(cors())
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
+
+const verifyApi = async (req, res, next) => {
+  const authHeader = req.headers.authorization
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).send({ message: 'Unauthorized: No token provided' })
+  }
+  const token = authHeader.split(' ')[1]
+
+  const JWKS = createRemoteJWKSet(
+    new URL('http://localhost:3000/api/auth/jwks')
+  )
+
+  try {
+    const { payload } = await jwtVerify(token, JWKS)
+    next()
+  } catch (error) {
+    return res.status(401).send({ message: 'Unauthorized: Invalid token' })
+  }
+}
 
 const client = new MongoClient(process.env.MONGO_URI)
 export async function connectToMongoDB () {
@@ -50,7 +70,7 @@ app.get('/latest-books', async (req, res) => {
   res.send(result)
 })
 
-app.get('/books/:id', async (req, res) => {
+app.get('/books/:id', verifyApi, async (req, res) => {
   const id = req.params.id
   const query = { _id: new ObjectId(id) }
   const result = await allBooksCollection.findOne(query)
