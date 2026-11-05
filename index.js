@@ -47,7 +47,7 @@ const db = connectClient.db('Book-nook-server')
 const allBooksCollection = db.collection('allBooks')
 const borrowsCollection = db.collection('borrows')
 
-app.post('/books', async (req, res) => {
+app.post('/books', verifyApi, async (req, res) => {
   const books = {
     ...req.body,
     copies: Math.max(0, Number(req.body.copies) || 0)
@@ -109,7 +109,7 @@ app.put('/books/:id', async (req, res) => {
   res.send(result)
 })
 
-app.delete('/books/:id', async (req, res) => {
+app.delete('/books/:id', verifyApi, async (req, res) => {
   const id = req.params.id
   const query = { _id: new ObjectId(id) }
   const result = await allBooksCollection.deleteOne(query)
@@ -182,7 +182,7 @@ app.delete('/borrows/:id', async (req, res) => {
   res.send(result)
 })
 
-app.patch('/books/:id', async (req, res) => {
+app.patch('/books/:id', verifyApi, async (req, res) => {
   const id = req.params.id
   if (!ObjectId.isValid(id)) {
     return res.status(400).send({ message: 'Invalid Book ID' })
