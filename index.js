@@ -61,6 +61,10 @@ app.get('/allBooks', async (req, res) => {
   res.send(result)
 })
 
+app.get('/', (req, res) => {
+  res.send('BookNook Backend Server is running successfully! ')
+})
+
 app.get('/latest-books', async (req, res) => {
   const result = await allBooksCollection
     .find({})
@@ -232,3 +236,5 @@ app.patch('/books/:id', verifyApi, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on the port ${PORT}`)
 })
+
+export default app
